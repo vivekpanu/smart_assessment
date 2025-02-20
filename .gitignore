@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+*.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs & Debugging
+logs/
+*.log
+*.out
+*.err
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.sublime-workspace
+
+# OS-related files
+.DS_Store
+Thumbs.db
+
+# Environment Variables & Secrets
+.env
+*.secret
+config.json
+
+# Dependencies
+*.egg-info/
+Pipfile.lock
+poetry.lock
+
+# Data & Models
+data/
+*.csv
+*.json
+*.xlsx
+*.h5
+*.pkl
+*.joblib
+*.db
+*.sqlite
+
+# Compiled files & cache
+*.so
+*.dll
+*.dylib
+
+# Build & Distribution
+dist/
+build/
+*.tar.gz
+*.whl
+
+# Node.js (if using React for UI)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Docker
+docker-compose.override.yml
+
+# Jupyter Notebook Outputs
+*.ipynb_checkpoints/
+
+# Others
+*.swap
+*.bak
