@@ -136,6 +136,7 @@ export function SignUpPage({ onSignUp, onBackToSignIn, errorMessage }: SignUpPag
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => setTouched({ ...touched, email: true })}
+                autoComplete="off" // Prevents autofill
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required
               />
@@ -157,6 +158,7 @@ export function SignUpPage({ onSignUp, onBackToSignIn, errorMessage }: SignUpPag
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => setTouched({ ...touched, password: true })}
+                  autoComplete="new-password" // Prevents saved password suggestion
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
                   required
                   minLength={6}
