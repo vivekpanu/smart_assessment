@@ -165,13 +165,13 @@ export function LandingPage({ onGetStarted, onSignUp }: LandingPageProps) {
                 <div className="flex items-center text-gray-600">
                   <Phone className="h-5 w-5 mr-2 text-blue-500" />
                   <a href="tel:+923193023619" className="hover:text-blue-500 transition-colors">
-                    +92 319 3023619
+                    +92 319 0000000
                   </a>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <Mail className="h-5 w-5 mr-2 text-blue-500" />
                   <a href="mailto:vivekpanu178@gmail.com" className="hover:text-blue-500 transition-colors">
-                    vivekpanu178@gmail.com
+                    xyz@gmail.com
                   </a>
                 </div>
               </div>
