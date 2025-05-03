@@ -54,7 +54,7 @@ export function LandingPage({ onGetStarted, onSignUp }: LandingPageProps) {
       <div className="flex items-center space-x-4">
         <button
           onClick={onGetStarted}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-500 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 hover:text-blue-500 transition-colors"
         >
           <LogIn className="h-4 w-4 mr-2" />
           Sign In
@@ -134,7 +134,7 @@ export function LandingPage({ onGetStarted, onSignUp }: LandingPageProps) {
             <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {teamMembers.map((member, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                <div key={index} className="bg-blue-50 rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 hover:bg-rose-100 transition-transform duration-300">
                   <div className="p-8">
                     <div className="flex justify-center mb-6">
                       <div className={`w-20 h-20 rounded-full ${member.bgColor} flex items-center justify-center`}>

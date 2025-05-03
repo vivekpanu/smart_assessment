@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Quiz from '../models/Quiz.js'
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
+    // console.log("req.body: ",req.body)
 
     // Find user
     const user = await User.findOne({ email });
@@ -69,11 +71,11 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
+    // Generate JWT token with 2-hour expiration
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '2h' } // Changed from '24h' to '2h'
     );
 
     res.json({
@@ -90,5 +92,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
 
 export default router;

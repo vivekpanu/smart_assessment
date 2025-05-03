@@ -1,15 +1,20 @@
 export interface Question {
-  id: number;
+  id: string;
   question: string;
-  options: string[];
-  correctAnswer: number;
+  questionType: 'mcq' | 'openEnded';
+  options?: string[];         // For MCQs
+  correctAnswer?: number;     // For MCQs
+  context?: string;           // Additional context for questions
 }
 
-export interface AssessmentState {
-  currentQuestion: number;
-  score: number;
-  answers: number[];
-  isComplete: boolean;
+export interface Assessment {
+  id: string;
+  title: string;
+  description: string;
+  questions: Question[];
+  questionType: 'mcq' | 'openEnded';
+  timeLimit?: number;
+  createdAt: string;
 }
 
 export interface User {
@@ -20,18 +25,26 @@ export interface User {
 }
 
 export interface Assessment {
-  id: number;
+  id: string;
   title: string;
   description: string;
   questions: Question[];
-  timeLimit?: number; // in minutes
+  timeLimit?: number;
   createdAt: string;
 }
 
 export interface StudentResult {
-  id: number;
-  studentId: number;
-  assessmentId: number;
+  id: string;
+  studentId: string;
+  assessmentId: string;
   score: number;
   completedAt: string;
+  assessmentTitle?: string; // Add this optional field
+}
+export interface AssessmentState {
+  currentQuestion: number;
+  score: number;
+  answers: (number | string)[];
+  isComplete: boolean;
+  evaluationResults?: any[];
 }

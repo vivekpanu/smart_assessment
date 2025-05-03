@@ -21,9 +21,11 @@ export function SignInPage({ onSignIn, onSignUp, errorMessage }: SignInPageProps
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTouched({ role: true, email: true, password: true });
+
     
     if (selectedRole && email && password) {
       onSignIn(selectedRole, email, password);
+      
     }
   };
 
