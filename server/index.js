@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import jwt from 'jsonwebtoken';
 
 // ES module equivalent for __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -45,7 +46,27 @@ app.use((req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   next();
 });
+const authenticateUser = (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token provided' });
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = {
+      _id: decoded.userId,
+      role: decoded.role
+    };
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+// Add this error handling middleware at the end
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
+});
 // Question Generation Endpoint
 app.post('/generate-question', async (req, res) => {
   try {
@@ -146,14 +167,76 @@ app.post('/save-questions', async (req, res) => {
   }
 });
 
-app.get('/api/assessments', async (req, res) => {
+app.get('/api/assessments', authenticateUser, async (req, res) => {
   try {
-    const assessments = await Quiz.find().lean();
-    res.json(assessments);
+    // Get user from authentication middleware
+    const user = req.user;
+
+    // Student logic
+    if (user.role === 'student') {
+      const assessments = await Quiz.find({
+        // Add any student-specific filters here
+      }).lean();
+      return res.json(assessments);
+    }
+
+    // Teacher logic
+    if (user.role === 'teacher') {
+      const assessments = await Quiz.find({ userId: user._id })
+        .sort({ createdAt: -1 })
+        .lean();
+      return res.json(assessments);
+    }
+
+    // Handle invalid roles
+    return res.status(403).json({ error: 'Unauthorized role' });
+
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching assessments' });
+    console.error('Error fetching assessments:', error);
+    res.status(500).json({ 
+      error: 'Server error while fetching assessments',
+      ...(process.env.NODE_ENV === 'development' && { details: error.message })
+    });
   }
 });
+
+// app.get('/api/assessments', async (req, res) => {
+//   try {
+//     const assessments = await Quiz.find().lean();
+//     res.json(assessments);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Error fetching assessments' });
+//   }
+// });
+
+
+// app.get('/api/assessments', async (req, res) => {
+//   try {
+//     const { userId } = req.query;
+
+//     // Validate user ID
+//     if (!userId) {
+//       return res.status(400).json({ error: 'User ID is required' });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({ error: 'Invalid user ID format' });
+//     }
+
+//     // Find assessments with matching userId
+//     const assessments = await Quiz.find({ userId })
+//       .sort({ createdAt: -1 }) // Sort by newest first
+//       .lean();
+
+//     res.json(assessments);
+//   } catch (error) {
+//     console.error('Error fetching assessments:', error);
+//     res.status(500).json({ 
+//       error: 'Server error while fetching assessments',
+//       details: error.message 
+//     });
+//   }
+// });
 
 app.post('/api/results', async (req, res) => {
   // console.log("POST RESULTS CALLED")

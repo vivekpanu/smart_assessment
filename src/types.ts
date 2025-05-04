@@ -8,6 +8,7 @@ export interface Question {
 }
 
 export interface Assessment {
+  userId:string,
   id: string;
   title: string;
   description: string;
@@ -39,7 +40,15 @@ export interface StudentResult {
   assessmentId: string;
   score: number;
   completedAt: string;
-  assessmentTitle?: string; // Add this optional field
+  userAnswers: (number | string)[];
+  evaluationResults?: Array<{
+    feedback?: {
+      similarityScore?: number;
+      modelAnswer?: string;
+      feedbackMessage?: string;
+    }
+  }>;
+  assessmentTitle?: string;
 }
 export interface AssessmentState {
   currentQuestion: number;

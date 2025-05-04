@@ -39,7 +39,12 @@ export function TeacherDashboard({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [studentResultsByAssessment, setStudentResultsByAssessment] = useState<{ [key: string]: any[] }>({});
-  
+  // Get logged-in user ID
+  const userId = localStorage.getItem('userId');
+  const filteredFiles = savedQuestionFiles.filter(file => file.userId === userId); // Filter files based on userId
+
+  // console.log("assessments ",assessments);
+  // console.log("userID", userId)
   const isValidObjectId = (id: string) => {
     return /^[0-9a-fA-F]{24}$/.test(id);
   };
@@ -59,7 +64,7 @@ export function TeacherDashboard({
     
         const response = await fetch(`http://localhost:5000/api/user-questions?userId=${userId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch questions');
+          throw new Error('No question generated. Generate questions to see them here.');
         }
   
         const data = await response.json();
@@ -91,20 +96,6 @@ export function TeacherDashboard({
     fetchUserQuestions();
   }, []);
 
-
-  // // Mock student results for assessments
-  // const studentResultsByAssessment: Record<string, { id: number; studentName: string; score: number; completedAt: string; }[]> = {
-  //   1: [
-  //     { id: 1, studentName: 'Alice Johnson', score: 85, completedAt: '2024-03-15T11:30:00Z' },
-  //     { id: 2, studentName: 'Bob Smith', score: 92, completedAt: '2024-03-15T12:15:00Z' },
-  //     { id: 3, studentName: 'Charlie Brown', score: 78, completedAt: '2024-03-15T13:00:00Z' }
-  //   ],
-  //   2: [
-  //     { id: 4, studentName: 'Diana Prince', score: 95, completedAt: '2024-03-14T10:30:00Z' },
-  //     { id: 5, studentName: 'Edward Clark', score: 88, completedAt: '2024-03-14T11:45:00Z' }
-  //   ]
-  // };
-  
 
   const bloomTaxonomyLevels = [
     'Remembering',
@@ -197,6 +188,7 @@ export function TeacherDashboard({
   };
   
 
+  
   const getFileIcon = (type: string) => {
     switch (type) {
       case 'Multiple Choice':
@@ -328,47 +320,49 @@ export function TeacherDashboard({
   </div>
 ) : (
   <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+    
     {savedQuestionFiles.map(file => (
-      <div key={file.id} className=" bg-gray-50 border border-gray-500 rounded-lg p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-start">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              {getFileIcon(file.type)}
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-800">{file.name}</h4>
-              <div className="flex flex-wrap gap-2 mt-2">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  {file.type}
-                </span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                  {file.questionsCount} questions
-                </span>
-              </div>
-              <p className="text-sm text-gray-500 mt-1">
-                Created on {new Date(file.createdAt).toLocaleDateString()}
-              </p>
-            </div>
+    <div key={file.id} className="bg-gray-50 border border-gray-500 rounded-lg p-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-start">
+          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+            {getFileIcon(file.type)}
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleDownloadFile(file)}
-              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Download"
-            >
-              <Download className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => handleDeleteFile(file.id)}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+          <div>
+            <h4 className="font-medium text-gray-800">{file.name}</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {file.type}
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {file.questionsCount} questions
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">
+              Created on {new Date(file.createdAt).toLocaleDateString()}
+            </p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleDownloadFile(file)}
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Download"
+          >
+            <Download className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => handleDeleteFile(file.id)}
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            title="Delete"
+          >
+            <Trash2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-    ))}
+    </div>
+))}
+
   </div>
 )}
             </div>
@@ -379,11 +373,15 @@ export function TeacherDashboard({
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                   <FileSpreadsheet className="w-6 h-6 text-green-500" />
                 </div>
-                <h3 className="text-lg font-semibold ml-3">Recent Assessments</h3>
+                <h3 className="text-lg font-semibold ml-3">Submitted Assessments</h3>
               </div>
               <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                {assessments.map(assessment => (
-                  <div key={assessment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-500">
+  {assessments
+    .filter(assessment => assessment.userId === userId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 5)
+    .map(assessment => (
+      <div key={assessment.id} className="bg-gray-50 rounded-lg p-4 border border-gray-500">
                     <div className="flex flex-col space-y-4">
                       <div className="flex justify-between items-start">
                         <div className="flex items-start">
@@ -392,7 +390,6 @@ export function TeacherDashboard({
                           </div>
                           <div>
                             <h4 className="font-medium text-gray-800">{assessment.title}</h4>
-                            {/* <p className="text-sm text-gray-600 mt-1">{assessment.description}</p> */}
                             <span className="text-sm text-gray-500 block mt-2">
                               Time: {assessment.timeLimit} mins
                             </span>
@@ -436,7 +433,12 @@ export function TeacherDashboard({
                     </div>
                   </div>
                 ))}
-              </div>
+              {assessments.filter(a => a.userId === userId).length === 0 && (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-blue-600">
+      No assessments Submitted.
+    </div>
+  )}
+               </div>
             </div>
           </div>
         </div>

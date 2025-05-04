@@ -45,6 +45,7 @@ function App() {
 
   const handleSignIn = async (role: 'student' | 'teacher', email: string, password: string) => {
     try {
+      // Authenticate user
       const { token, user } = await auth.login(email, password, role);
       localStorage.setItem('token', token);
       localStorage.setItem('userId', user.id || user._id);
@@ -53,26 +54,35 @@ function App() {
       const userId = user.id || user._id;
       if (!userId) throw new Error('Missing user ID in login response');
   
-      // Fetch endpoints configuration
-      const API_BASE =  'http://localhost:5000';
-      
+      const API_BASE = 'http://localhost:5000';
+  
+      // Determine endpoints based on role
+      const assessmentsEndpoint = role === 'teacher'
+        ? `${API_BASE}/api/assessments?userId=${userId}`  // Teacher endpoint
+        : `${API_BASE}/api/assessments`;                 // Student endpoint
+  
+      const resultsEndpoint = `${API_BASE}/api/results?studentId=${userId}`;
+  
+      // Parallel API calls
       const [assessmentsRes, resultsRes] = await Promise.all([
-        fetch(`${API_BASE}/api/assessments`, {
+        fetch(assessmentsEndpoint, {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         }),
-        fetch(`${API_BASE}/api/results?studentId=${userId}`, {
+        role === 'student' ? fetch(resultsEndpoint, {
           headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
           }
-        })
+        }) : Promise.resolve(null)  // Only fetch results for students
       ]);
   
       // Handle non-JSON responses
-      const parseResponse = async (response: Response) => {
+      const parseResponse = async (response: Response | null) => {
+        if (!response) return null;  // Handle teacher's null results response
+        
         const contentType = response.headers.get('content-type');
         if (!contentType?.includes('application/json')) {
           const text = await response.text();
@@ -83,41 +93,41 @@ function App() {
   
       // Process responses
       const assessmentsData = await parseResponse(assessmentsRes);
-      const resultsData = await parseResponse(resultsRes);
-  
-      // Debug logging
-      // console.log('Fetched Assessments:', assessmentsData);
-      // console.log('Fetched Results:', resultsData);
+      const resultsData = role === 'student' 
+        ? await parseResponse(resultsRes)
+        : [];
   
       // Transform assessments data
-// Update the question mapping in assessmentsData.map()
-const mappedAssessments: Assessment[] = assessmentsData.map((quiz: any) => ({
-  id: quiz._id,
-  title: quiz.quizName,
-  description: quiz.description || '', // Use quiz-level description
-  questionType: quiz.questionType,
-  questions: quiz.questions.map((q: any) => ({
-    id: q._id?.toString() || crypto.randomUUID(),
-    question: q.question,
-    context: q.context || quiz.context || '', // Fallback to assessment context
-    options: q.options,
-    correctAnswer: q.correctAnswer,
-    questionType: q.questionType || (q.options ? 'mcq' : 'openEnded')
-  })),
-  timeLimit: quiz.timeLimit || 10,
-  createdAt: new Date(quiz.createdAt).toISOString()
-}));
-  
-      // Transform results data
-      const mappedResults: StudentResult[] = resultsData.map((result: any) => ({
-        id: result._id,
-        studentId: result.studentId,
-        assessmentId: result.assessmentId,
-        score: result.score,
-        completedAt: result.completedAt
+      const mappedAssessments: Assessment[] = assessmentsData.map((quiz: any) => ({
+        id: quiz._id,
+        userId: quiz.userId,
+        title: quiz.quizName,
+        description: quiz.description || '',
+        questionType: quiz.questionType,
+        questions: quiz.questions.map((q: any) => ({
+          id: q._id?.toString() || crypto.randomUUID(),
+          question: q.question,
+          context: q.context || quiz.context || '',
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          questionType: q.questionType || (q.options ? 'mcq' : 'openEnded')
+        })),
+        timeLimit: quiz.timeLimit || 10,
+        createdAt: new Date(quiz.createdAt).toISOString()
       }));
   
-      // Update state
+      // Transform results data (only for students)
+      const mappedResults: StudentResult[] = role === 'student'
+        ? resultsData.map((result: any) => ({
+            id: result._id,
+            studentId: result.studentId,
+            assessmentId: result.assessmentId,
+            score: result.score,
+            completedAt: result.completedAt
+          }))
+        : [];
+  
+      // Update application state
       setAssessments(mappedAssessments);
       setStudentResults(mappedResults);
       setUserRole(user.role);
@@ -327,7 +337,9 @@ details = activeAssessmentQuestions.map((q, index) => ({
           assessmentId: activeAssessment,
           score: finalScore,
           completedAt: new Date().toISOString(),
-          assessmentTitle: result.assessmentTitle
+          assessmentTitle: result.assessmentTitle,
+          userAnswers: result.answers || [], // Add required userAnswers
+          evaluationResults: result.evaluationResults || [] // Add optional evaluationResults
         }]);
   
       } catch (error) {

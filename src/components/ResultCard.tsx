@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Trophy, CheckCircle2, XCircle, RefreshCcw, Eye } from 'lucide-react';
+import { Trophy, RefreshCcw, Eye } from 'lucide-react';
 import { Question } from '../types';
 
 interface ResultCardProps {
-  score: number; // Expected to be a percentage (0-100)
+  score: number;
   totalQuestions: number;
   onRestart: () => void;
   questions: Question[];
@@ -23,11 +23,10 @@ export function ResultCard({
   onRestart, 
   questions, 
   userAnswers,
-  evaluationResults 
+  evaluationResults = []
 }: ResultCardProps) {
   const [showReview, setShowReview] = useState(false);
   
-  // Calculate percentage correctly
   const percentage = Math.round(score);
   const displayScore = (score / 100 * totalQuestions).toFixed(1);
 
@@ -72,84 +71,94 @@ export function ResultCard({
             </button>
           </div>
           <div className="space-y-6">
-            {questions.map((question, index) => (
-              <div 
-                key={index}
-                className={`p-6 rounded-lg border-2 ${
-                  question.questionType === 'mcq' && userAnswers[index] === question.correctAnswer
-                    ? 'border-green-100 bg-green-50'
-                    : question.questionType === 'mcq'
-                    ? 'border-red-100 bg-red-50'
-                    : 'border-gray-100 bg-gray-50'
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-gray-800">
-                        {question.question}
-                      </h3>
-                    </div>
-                    
-                    {question.questionType === 'mcq' ? (
-                      <div className="space-y-2">
-                        {question.options?.map((option, optIndex) => (
-                          <div
-                            key={optIndex}
-                            className={`p-3 rounded-lg ${
-                              optIndex === question.correctAnswer
-                                ? 'bg-green-100 text-green-800'
-                                : optIndex === userAnswers[index]
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-white text-gray-600'
-                            }`}
-                          >
-                            {option}
-                          </div>
-                        ))}
+            {questions.map((question, index) => {
+              const userAnswer = userAnswers[index];
+              const correctAnswer = question.correctAnswer;
+              const feedback = evaluationResults[index]?.feedback;
+
+              return (
+                <div 
+                  key={index}
+                  className="p-6 rounded-lg border-2 border-gray-100 bg-gray-50"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-medium text-gray-800">
+                          {question.question}
+                        </h3>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="bg-white p-4 rounded-lg">
-                          <p className="text-sm font-medium text-gray-700">Your Answer:</p>
-                          <p className="text-gray-600 mt-1">{userAnswers[index]}</p>
-                        </div>
-                        {evaluationResults?.[index]?.feedback && (
-                          <div className="bg-blue-50 p-4 rounded-lg">
-                            <p className="text-sm font-medium text-gray-700">Feedback:</p>
-                            <div className="mt-2 grid grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-sm">Model Answer:</p>
-                                <p className="text-gray-600">
-                                  {evaluationResults[index].feedback.modelAnswer || 'N/A'}
-                                </p>
+                      
+                      {question.questionType === 'mcq' ? (
+                        <div className="space-y-2">
+                          {question.options?.map((option, optIndex) => {
+                            const isSelected = optIndex === userAnswer;
+                            const isCorrect = optIndex === correctAnswer;
+
+                            return (
+                              <div
+                                key={optIndex}
+                                className={`p-3 rounded-lg ${
+                                  isSelected
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-white text-gray-600'
+                                } ${
+                                  isCorrect ? 'border-2 border-green-500' : ''
+                                }`}
+                              >
+                                {option}
+                                {isSelected && (
+                                  <span className="ml-2 text-sm text-blue-600">
+                                    (Your selection)
+                                  </span>
+                                )}
+                                {isCorrect && (
+                                  <span className="ml-2 text-sm text-green-600">
+                                    (Correct Answer)
+                                  </span>
+                                )}
                               </div>
-                              <div>
-                                <p className="text-sm">
-                                  Similarity Score: {(evaluationResults[index].feedback.similarityScore?.toFixed(1) || 0)}%
-                                </p>
-                                <p className="text-sm font-medium mt-2">
-                                  {evaluationResults[index].feedback.feedbackMessage}
-                                </p>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          <div className="bg-white p-4 rounded-lg">
+                            <p className="text-sm font-medium text-gray-700">Your Answer:</p>
+                            <p className="text-gray-600 mt-1">{userAnswer}</p>
+                          </div>
+                          {feedback?.modelAnswer && (
+                            <div className="bg-green-50 p-4 rounded-lg">
+                              <p className="text-sm font-medium text-gray-700">Correct Answer:</p>
+                              <p className="text-gray-600 mt-1">
+                                {feedback.modelAnswer}
+                              </p>
+                            </div>
+                          )}
+                          {feedback && (
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                              <p className="text-sm font-medium text-gray-700">Feedback:</p>
+                              <div className="mt-2 grid grid-cols-2 gap-4">
+                                <div>
+                                  <p className="text-sm">
+                                    Similarity Score: {(feedback.similarityScore?.toFixed(1) || 0)}%
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">
+                                    {feedback.feedbackMessage}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {question.questionType === 'mcq' && (
-                    <div className="ml-4">
-                      {userAnswers[index] === question.correctAnswer ? (
-                        <CheckCircle2 className="w-8 h-8 text-green-500" />
-                      ) : (
-                        <XCircle className="w-8 h-8 text-red-500" />
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <div className="mt-6 text-center">
             <button

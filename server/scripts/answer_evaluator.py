@@ -6,7 +6,7 @@ import torch
 app = Flask(__name__)
 
 # Load models once during startup
-MODEL_PATH = "/Users/pawan/Desktop/project/project/models/bert-base"
+MODEL_PATH = "../../models/bert-base"
 qa_tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 qa_model = AutoModelForQuestionAnswering.from_pretrained(MODEL_PATH, use_safetensors=True)
 similarity_model = SentenceTransformer('all-MiniLM-L6-v2')
