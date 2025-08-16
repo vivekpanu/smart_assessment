@@ -105,7 +105,12 @@ The system follows a **3-layer architecture**:
 ---
 
 ## 📸 Screenshots (Coming Soon!)
-> Add screenshots of your system here to showcase dashboards, assessments, and results.
+<img width="970" height="455" alt="image" src="https://github.com/user-attachments/assets/6772871d-ff25-4f8f-8250-fa999af973e0" />
+<img width="970" height="455" alt="image" src="https://github.com/user-attachments/assets/7e2d63a3-cd75-434c-b866-af8140080b45" />
+<img width="970" height="460" alt="image" src="https://github.com/user-attachments/assets/b360dd13-0a5c-4bf0-b267-b6c221002e21" />
+<img width="970" height="505" alt="image" src="https://github.com/user-attachments/assets/2ef7945f-5372-465d-be8d-4526495a6a42" />
+<img width="778" height="819" alt="image" src="https://github.com/user-attachments/assets/c0be726c-15e0-4a81-8ae9-3bffd106b140" />
+
 
 ---
 
