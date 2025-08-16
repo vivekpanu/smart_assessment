@@ -104,7 +104,7 @@ The system follows a **3-layer architecture**:
 
 ---
 
-## 📸 Screenshots (Coming Soon!)
+## 📸 Screenshots 
 <img width="970" height="455" alt="image" src="https://github.com/user-attachments/assets/6772871d-ff25-4f8f-8250-fa999af973e0" />
 <img width="970" height="455" alt="image" src="https://github.com/user-attachments/assets/7e2d63a3-cd75-434c-b866-af8140080b45" />
 <img width="970" height="460" alt="image" src="https://github.com/user-attachments/assets/b360dd13-0a5c-4bf0-b267-b6c221002e21" />
